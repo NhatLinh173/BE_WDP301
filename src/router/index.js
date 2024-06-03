@@ -1,10 +1,8 @@
-const UserRouter = require('./UserRouter')
-
+const UserRouter = require("./UserRouter");
 
 // container all API
 const routes = (app) => {
-    app.use('/api/user', UserRouter)
+  app.use("/api/user", UserRouter);
+};
 
-}
-
-module.exports = routes
+module.exports = routes;
