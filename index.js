@@ -1,4 +1,5 @@
 const express = require("express");
+
 const dotenv = require("dotenv");
 const { default: mongoose } = require("mongoose");
 const routes = require('./src/router');
@@ -16,20 +17,27 @@ app.use(bodyParser.json())
 
 routes(app);
 
+const jobPostRouter = require("./src/router/jobRouter");
+
+
+const dbURI =
+  process.env.MONGO_DB ||
+  "mongodb+srv://thinhph9:viQilFKh1mNREcgB@fjobdb.vliqvdr.mongodb.net/FJobDB";
+
 app.use(express.json());
 
-  // Connnect MONGO_DB ATLAS
-mongoose.connect(`${process.env.MONGO_DB}`)
-.then(() => {
-    console.log("Connect DB success!")
-})
-.catch((err) => {
-    console.log(err)
-})
 
+mongoose
+  .connect(dbURI || `${process.env.MONGO_DB}`)
+  .then(() => {
+    console.log("Connect DB success!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
+app.use("/job", jobPostRouter);
 
-
-app.listen(port, () => {
-  console.log('App running with PORT http://localhost: ', port);
+app.listen(PORT, () => {
+  console.log(`App running with PORT http://localhost:${PORT}`);
 });
