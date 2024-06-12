@@ -38,6 +38,6 @@ mongoose
 
 app.use("/job", jobPostRouter);
 
-app.listen(PORT, () => {
-  console.log(`App running with PORT http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`App running with PORT http://localhost:${port}`);
 });
