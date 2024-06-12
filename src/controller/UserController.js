@@ -1,34 +1,80 @@
-const UserService = require('../service/UserService')
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const User = require("../models/UserModel");
+UserService = require("../service/UserService");
 
 const signUp = async (req, res) => {
-    try {
-        // console.log(req.body)
-        const { email, password} = req.body
-        const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-        const isCheckEmail = reg.test(email)
-        if (!email || !password) {
-            return res.status(200).json({
-                status: 'ERRO',
-                message: 'The input is required'
-            })
-
-        } else if (!isCheckEmail) {
-            return res.status(200).json({
-                status: 'ERRO',
-                message: 'The input is email'
-            })
-
-        }
-        // console.log("isCheckEmail", isCheckEmail)
-        const response = await UserService.signUp(req.body)
-        return res.status(200).json(response)
-    } catch (e) {
-        return res.status(404).json({
-            message: e
-        })
+  try {
+    const { email, password } = req.body;
+    const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+    if (!email || !password) {
+      return res.status(400).json({
+        status: "ERROR",
+        message: "Email and password are required",
+      });
+    } else if (!reg.test(email)) {
+      return res.status(400).json({
+        status: "ERROR",
+        message: "Invalid email format",
+      });
     }
-}
+    const response = await UserService.signUp(req.body);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log(req.body);
+    if (!email || !password) {
+      return res.status(400).json({
+        status: "ERROR",
+        message: "Email and password are required",
+      });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        status: "ERROR",
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log();
+    if (!isMatch) {
+      return res.status(400).json({
+        status: "ERROR",
+        message: "Incorrect password",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    return res.status(200).json({
+      status: "OK",
+      message: "Login SUCCESS",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+    });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
 
 module.exports = {
-    signUp
-}
+  signUp,
+  login,
+};
