@@ -8,11 +8,17 @@ const bodyParser = require("body-parser");
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3005;
 
 app.use(cors());
 app.use(bodyParser.json());
 routes(app);
+
+const jobPostRouter = require("./src/router/jobRouter");
+
+const dbURI =
+  process.env.MONGO_DB ||
+  "mongodb+srv://thinhph9:viQilFKh1mNREcgB@fjobdb.vliqvdr.mongodb.net/FJobDB";
+
 app.use(express.json());
 
 // Connect to MongoDB Atlas
@@ -22,10 +28,16 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log("Connect DB success!");
   })
   .catch((err) => {
     console.error("Error connecting to MongoDB:", err);
   });
 
 module.exports = app;
+
+
+
+// app.listen(port, () => {
+//   console.log(`App running with PORT http://localhost:${port}`);
+// });
