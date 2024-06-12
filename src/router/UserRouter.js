@@ -52,7 +52,6 @@ router.get(
         token: token,
         user: req.user,
         status: "You are successfully logged in!",
-        status: "You are successfully logged in!",
       });
     } else {
       res
