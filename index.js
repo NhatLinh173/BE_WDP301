@@ -1,24 +1,19 @@
 const express = require("express");
-
 const dotenv = require("dotenv");
-const { default: mongoose } = require("mongoose");
-const routes = require('./src/router');
-const cors = require('cors');
+const mongoose = require("mongoose");
+const routes = require("./src/router");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 
-dotenv.config()
+dotenv.config();
+
 const app = express();
-const port = process.env.PORT || 3005
 
-
-app.use(cors())
-// bodyParser before routes(app)
-app.use(bodyParser.json())
-
+app.use(cors());
+app.use(bodyParser.json());
 routes(app);
 
 const jobPostRouter = require("./src/router/jobRouter");
-
 
 const dbURI =
   process.env.MONGO_DB ||
@@ -26,18 +21,23 @@ const dbURI =
 
 app.use(express.json());
 
-
+// Connect to MongoDB Atlas
 mongoose
-  .connect(dbURI || `${process.env.MONGO_DB}`)
+  .connect(process.env.MONGO_DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("Connect DB success!");
   })
   .catch((err) => {
-    console.log(err);
+    console.error("Error connecting to MongoDB:", err);
   });
 
-app.use("/job", jobPostRouter);
+module.exports = app;
 
-app.listen(port, () => {
-  console.log(`App running with PORT http://localhost:${port}`);
-});
+
+
+// app.listen(port, () => {
+//   console.log(`App running with PORT http://localhost:${port}`);
+// });
