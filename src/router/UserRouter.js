@@ -3,6 +3,10 @@ const User = require("../models/UserModel");
 const passport = require("passport");
 const authenticate = require("../models/authenticate");
 const router = express.Router();
+userController = require("../controller/UserController");
+candidateController = require("../controller/CandidateController");
+
+router.post("/sign-up", userController.signUp);
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");

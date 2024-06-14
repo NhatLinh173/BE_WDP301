@@ -1,16 +1,19 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema; // Import Schema from mongoose
+
 const passportLocalMongoose = require("passport-local-mongoose");
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
-    name: { type: String, require: true },
-    email: { type: String, require: true, unique: true },
-    password: { type: String, require: true },
-    isAdmin: { type: Boolean, default: false, require: true },
-    address: { type: String, require: true },
-    phone: { type: Number, require: true },
-    access_token: { type: String, require: true },
-    refresh_token: { type: String, require: true },
+    name: { type: String },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    isAdmin: { type: Boolean, default: false },
+    address: { type: String },
+    phone: { type: Number },
+    access_token: { type: String },
+    refresh_token: { type: String },
+    candidateProfile: { type: Schema.Types.ObjectId, ref: "CandidateProfile" },
   },
   {
     timestamps: true,
