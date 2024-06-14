@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const jobSchema = new Schema({
   title: { type: String, required: true },
+  nameCompany: { type: String, required: true },
   description: { type: String, required: true },
   jobType: { type: String, required: true },
   jobCategories: { type: String, required: true },
@@ -13,10 +14,13 @@ const jobSchema = new Schema({
   skills: { type: String, required: true },
   qualifications: { type: String, required: true },
   experience: { type: String, required: true },
-  industry: { type: String, required: true },
   address: { type: String, required: true },
   country: { type: String, required: true },
   state: { type: String, required: true },
+  workPlace: { type: String, required: true },
+  reason: { type: [String], required: true },
+  workingDays: { type: [String], required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const Job = mongoose.model("Job", jobSchema);

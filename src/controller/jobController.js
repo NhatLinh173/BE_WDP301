@@ -13,10 +13,14 @@ const jobPostController = {
       skills,
       qualifications,
       experience,
-      industry,
       address,
       country,
       state,
+      workingDays,
+      nameCompany,
+      createdAt,
+      workPlace,
+      reason,
     } = req.body;
 
     try {
@@ -31,10 +35,14 @@ const jobPostController = {
         skills,
         qualifications,
         experience,
-        industry,
         address,
         country,
         state,
+        workingDays,
+        nameCompany,
+        createdAt,
+        workPlace,
+        reason,
       });
 
       res.status(201).json({

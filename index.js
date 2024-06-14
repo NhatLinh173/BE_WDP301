@@ -13,8 +13,6 @@ app.use(cors());
 app.use(bodyParser.json());
 routes(app);
 
-const jobPostRouter = require("./src/router/jobRouter");
-
 const dbURI =
   process.env.MONGO_DB ||
   "mongodb+srv://thinhph9:viQilFKh1mNREcgB@fjobdb.vliqvdr.mongodb.net/FJobDB";
@@ -35,8 +33,6 @@ mongoose
   });
 
 module.exports = app;
-
-
 
 // app.listen(port, () => {
 //   console.log(`App running with PORT http://localhost:${port}`);
