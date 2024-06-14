@@ -5,24 +5,22 @@ const signUp = (newUser) => {
   return new Promise(async (resolve, reject) => {
     const { email, password } = newUser;
     try {
-      const checkUser = await User.findOne({
-        email: email,
-      });
+      const checkUser = await User.findOne({ email });
       if (checkUser !== null) {
-        resolve({
+        return resolve({
           status: "OK",
-          message: "The email is already",
+          message: "The email is already in use",
         });
       }
+
       const hash = bcrypt.hashSync(password, 10);
-      console.log("hash", hash);
       const createdUser = await User.create({
         email,
         password: hash,
       });
 
       if (createdUser) {
-        resolve({
+        return resolve({
           status: "OK",
           message: "signUp SUCCESS",
           data: createdUser,
@@ -34,6 +32,7 @@ const signUp = (newUser) => {
     }
   });
 };
+
 const findUserByEmail = async (email) => {
   try {
     return await User.findOne({ email });
@@ -41,6 +40,7 @@ const findUserByEmail = async (email) => {
     throw new Error(e.message);
   }
 };
+
 module.exports = {
   signUp,
   findUserByEmail,
