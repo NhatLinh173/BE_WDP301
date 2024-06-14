@@ -2,43 +2,50 @@ const candidateProfileService = require("../service/CandidateService");
 
 const createProfile = async (req, res) => {
   try {
-    const profile = await candidateProfileService.createProfile(req.body);
-    res.json({ success: true, profile });
+    const userId = req.body.userId;
+
+    const profileData = {
+      fullName: req.body.fullName,
+      email: req.body.email,
+      phone: req.body.phone,
+      address: req.body.address,
+      website: req.body.website || "",
+      dateOfBirth: req.body.dateOfBirth || null,
+      sex: req.body.sex,
+      jobTitle: req.body.jobTitle,
+      user: userId,
+    };
+
+    const profile = await candidateProfileService.createProfile(profileData);
+    res.status(201).json({ success: true, profile });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({
+      success: false,
+      message: `Error creating profile: ${error.message}`,
+    });
   }
 };
 
+// router.get('/:userId', async (req, res) => {
 const getProfileById = async (req, res) => {
   try {
-    const profileId = req.params.id;
-    if (!profileId) {
+    const userId = req.params.userId;
+    const profile = await candidateProfileService.getProfileByUserId(userId);
+
+    if (!profile) {
       return res
-        .status(400)
-        .json({ success: false, message: "Profile ID is required" });
+        .status(404)
+        .json({ success: false, message: "Profile not found" });
     }
 
-    const profile = await candidateProfileService.getProfileById(profileId);
-    if (profile) {
-      res.status(200).json(profile);
-    } else {
-      res.status(404).json({ message: "Profile not found" });
-    }
+    res.status(200).json({ success: true, profile });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      success: false,
+      message: `Error retrieving profile: ${error.message}`,
+    });
   }
 };
-
-// const getProfileById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const profile = await profile.findById(id);
-//     res.json(profile);
-//   } catch (error) {
-//     console.error("Error fetching profile:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 
 module.exports = {
   createProfile,

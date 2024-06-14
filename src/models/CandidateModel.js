@@ -11,6 +11,7 @@ const CandidateProfileSchema = new Schema(
     address: { type: String, required: false },
     dateOfBirth: { type: Date, required: false },
     sex: { type: String, required: false },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   {
     timestamps: true,
