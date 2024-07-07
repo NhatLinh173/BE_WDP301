@@ -10,10 +10,18 @@ router.post("/sign-up", userController.signUp);
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
+const {
+  googleAuthenticate,
+  googleAuthenticateCallback,
+} = require("../controller/UserController");
+
 userController = require("../controller/UserController");
 
 router.post("/sign-up", userController.signUp);
 router.post("/login", userController.login);
+
+router.get("/google", googleAuthenticate);
+router.get("/google/callback", googleAuthenticateCallback);
 
 router.get(
   "/list",

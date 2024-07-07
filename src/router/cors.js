@@ -7,6 +7,7 @@ const whitelist = [
   "http://localhost:3005",
   "https://localhost:3443",
   "http://localhost:3006",
+  "http://localhost:3005/api/user/google/callback",
 ];
 var corsOptionsDelegate = (req, callback) => {
   var corsOptions;
