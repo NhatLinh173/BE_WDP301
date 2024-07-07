@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/UserModel");
 const passport = require("passport");
 UserService = require("../service/UserService");
+const nodemailer = require("nodemailer");
 
 const signUp = async (req, res) => {
   try {
@@ -93,10 +94,68 @@ const googleAuthenticateCallback = (req, res, next) => {
     }
   )(req, res, next);
 };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send({ Status: "User not existed" });
+    }
 
+    const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
+      expiresIn: "1d",
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Reset Password Link",
+      text: `http://localhost:3006/reset_password/${user._id}/${token}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).send({ Status: "Failed to send email" });
+      } else {
+        return res.send({ Status: "Success" });
+      }
+    });
+  } catch (err) {
+    console.error(err); // Log error chi tiết để kiểm tra
+    res.status(500).send({ err: err.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+  try {
+    jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+      if (err) {
+        return res.status(400).json({ Status: "Error with token" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await User.findByIdAndUpdate(id, { password: hashedPassword });
+      res.send({ Status: "Success" });
+    });
+  } catch (err) {
+    res.status(500).send({ Status: err.message });
+  }
+};
 module.exports = {
   signUp,
   login,
   googleAuthenticate,
   googleAuthenticateCallback,
+  forgotPassword,
+  resetPassword,
 };
