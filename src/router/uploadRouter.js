@@ -3,12 +3,10 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const User = require("../models/UserModel");
 const path = require("path");
-const fs = require("fs").promises; // Sử dụng fs.promises để sử dụng async-await với fs
+const fs = require("fs").promises;
 
-// Đường dẫn tới thư mục lưu trữ tệp
 const uploadPath = path.join(__dirname, "../public/cvs");
 
-// Thiết lập lưu trữ cho multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadPath);
@@ -19,7 +17,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Bộ lọc tệp cho multer
 const cvFileFilter = (req, file, cb) => {
   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
     return cb(new Error("You can upload only image files!"), false);
@@ -27,16 +24,12 @@ const cvFileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-// Khởi tạo multer với các cài đặt
 const upload = multer({ storage: storage, fileFilter: cvFileFilter });
 
-// Khởi tạo router Express
 const router = express.Router();
 
-// Sử dụng bodyParser cho JSON
 router.use(bodyParser.json());
 
-// Định nghĩa các endpoint
 router
   .get("/:userId/cvs", async (req, res) => {
     try {
@@ -56,7 +49,7 @@ router
       const { originalname, filename } = req.file;
       const newCV = {
         cvName: originalname,
-        cvPath: path.join(uploadPath, filename), // Đường dẫn tuyệt đối đến tệp
+        cvPath: path.join(uploadPath, filename),
       };
       const user = await User.findByIdAndUpdate(
         userId,
@@ -73,7 +66,6 @@ router
       const filename = req.params.filename;
       const filePath = path.join(uploadPath, filename);
 
-      // Kiểm tra xem tệp tồn tại
       const stats = await fs.stat(filePath);
       if (!stats.isFile()) {
         return res.status(404).json({ message: "File not found." });
@@ -89,19 +81,15 @@ router
       const userId = req.params.userId;
       const filename = req.params.filename;
 
-      // Xây dựng đường dẫn tuyệt đối đến tệp
       const filePath = path.join(uploadPath, filename);
       console.log("filePath: " + filePath);
-      // Kiểm tra xem tệp tồn tại
       const stats = await fs.stat(filePath);
       if (!stats.isFile()) {
         return res.status(404).json({ message: "File not found." });
       }
 
-      // Xóa tệp vật lý từ hệ thống tệp
       await fs.unlink(filePath);
 
-      // Cập nhật cơ sở dữ liệu
       const user = await User.findByIdAndUpdate(
         userId,
         { $pull: { cvList: { cvPath: filePath } } },
