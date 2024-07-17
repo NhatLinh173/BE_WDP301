@@ -43,24 +43,47 @@ router
       res.status(500).json({ error: err.message });
     }
   })
-  .post("/:userId", upload.single("cvFile"), async (req, res) => {
+  .post("/:userId", upload.array("cvFiles", 10), async (req, res) => {
     try {
       const userId = req.params.userId;
-      const { originalname, filename } = req.file;
-      const newCV = {
-        cvName: originalname,
-        cvPath: path.join(uploadPath, filename),
-      };
-      const user = await User.findByIdAndUpdate(
-        userId,
-        { $push: { cvList: newCV } },
-        { new: true }
-      );
-      res.status(200).json({ message: "CV uploaded successfully", user: user });
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const newCVs = req.files.map((file) => ({
+        cvName: file.originalname,
+        cvPath: path.join(uploadPath, file.filename),
+      }));
+
+      user.cvList.push(...newCVs);
+      await user.save();
+
+      res
+        .status(200)
+        .json({ message: "CVs uploaded successfully", user: user });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   })
+  // .post("/:userId", upload.single("cvFile"), async (req, res) => {
+  //   try {
+  //     const userId = req.params.userId;
+  //     const { originalname, filename } = req.file;
+  //     const newCV = {
+  //       cvName: originalname,
+  //       cvPath: path.join(uploadPath, filename),
+  //     };
+  //     const user = await User.findByIdAndUpdate(
+  //       userId,
+  //       { $push: { cvList: newCV } },
+  //       { new: true }
+  //     );
+  //     res.status(200).json({ message: "CV uploaded successfully", user: user });
+  //   } catch (err) {
+  //     res.status(500).json({ error: err.message });
+  //   }
+  // })
   .get("/download/:filename", async (req, res) => {
     try {
       const filename = req.params.filename;

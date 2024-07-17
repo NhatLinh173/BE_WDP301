@@ -11,6 +11,12 @@ const cvSchema = new Schema({
     default: Date.now,
   },
 });
+
+const degreeSchema = new Schema({
+  degreeName: { type: String },
+  degreePath: { type: String },
+  uploadDate: { type: Date, default: Date.now },
+});
 const userSchema = new Schema(
   {
     name: { type: String },
@@ -23,6 +29,8 @@ const userSchema = new Schema(
     refresh_token: { type: String },
     candidateProfile: { type: Schema.Types.ObjectId, ref: "CandidateProfile" },
     cvList: [cvSchema],
+    degreeList: [degreeSchema],
+
     googleId: {
       type: String,
     },
