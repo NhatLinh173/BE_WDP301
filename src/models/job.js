@@ -18,9 +18,13 @@ const jobSchema = new Schema({
   country: { type: String, required: true },
   state: { type: String, required: true },
   workPlace: { type: String, required: true },
+  userId: { type: String, require: true },
   reason: { type: [String], required: true },
   workingDays: { type: [String], required: true },
+  image: { type: String, require: true },
   createdAt: { type: Date, default: Date.now },
+  expiredDate: { type: Date },
+  status: { type: String, require: true },
 });
 
 const Job = mongoose.model("Job", jobSchema);

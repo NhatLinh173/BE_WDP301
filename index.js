@@ -4,10 +4,11 @@ const mongoose = require("mongoose");
 const routes = require("./src/router");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
+const path = require("path");
 dotenv.config();
 
 const app = express();
+app.use("/uploads", express.static(path.join(__dirname, "utils")));
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -33,7 +34,3 @@ mongoose
   });
 
 module.exports = app;
-
-// app.listen(port, () => {
-//   console.log(`App running with PORT http://localhost:${port}`);
-// });
