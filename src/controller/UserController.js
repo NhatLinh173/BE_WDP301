@@ -86,7 +86,7 @@ const googleAuthenticateCallback = (req, res, next) => {
         console.log("email : " + user.email);
         // Redirect to the client with user info in URL
         res.redirect(
-          `http://localhost:3006/login?userId=${user._id}&token=${token}&email=${user.email}`
+          `http://localhost:3006/login?id=${user._id}&token=${token}&email=${user.email}`
         );
       } catch (error) {
         res.status(500).send({ message: error.message });

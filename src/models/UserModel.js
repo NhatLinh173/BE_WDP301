@@ -27,6 +27,7 @@ const userSchema = new Schema(
     phone: { type: Number },
     access_token: { type: String },
     refresh_token: { type: String },
+    role: { type: String },
     candidateProfile: { type: Schema.Types.ObjectId, ref: "CandidateProfile" },
     cvList: [cvSchema],
     degreeList: [degreeSchema],
