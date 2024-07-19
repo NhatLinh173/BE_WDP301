@@ -12,17 +12,14 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+    const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.]/g, "_");
+    cb(null, sanitizedFilename);
   },
 });
 
 const cvFileFilter = (req, file, cb) => {
-  if (!file.originalname.match(/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/)) {
-    return cb(
-      new Error("You can upload only PDF, DOC, DOCX, or image files!"),
-      false
-    );
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    return cb(new Error("You can upload only image files!"), false);
   }
   cb(null, true);
 };
@@ -69,9 +66,27 @@ router
       res.status(500).json({ error: err.message });
     }
   })
+  // .post("/:userId", upload.single("cvFile"), async (req, res) => {
+  //   try {
+  //     const userId = req.params.userId;
+  //     const { originalname, filename } = req.file;
+  //     const newCV = {
+  //       cvName: originalname,
+  //       cvPath: path.join(uploadPath, filename),
+  //     };
+  //     const user = await User.findByIdAndUpdate(
+  //       userId,
+  //       { $push: { cvList: newCV } },
+  //       { new: true }
+  //     );
+  //     res.status(200).json({ message: "CV uploaded successfully", user: user });
+  //   } catch (err) {
+  //     res.status(500).json({ error: err.message });
+  //   }
+  // })
   .get("/download/:filename", async (req, res) => {
     try {
-      const filename = decodeURIComponent(req.params.filename);
+      const filename = req.params.filename;
       const filePath = path.join(uploadPath, filename);
 
       const stats = await fs.stat(filePath);
@@ -87,7 +102,7 @@ router
   .delete("/:userId/:filename", async (req, res) => {
     try {
       const userId = req.params.userId;
-      const filename = decodeURIComponent(req.params.filename);
+      const filename = req.params.filename;
 
       const filePath = path.join(uploadPath, filename);
       console.log("filePath: " + filePath);
