@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/UserModel");
-UserService = require("../service/UserService");
+const UserService = require("../service/UserService");
 
 const signUp = async (req, res) => {
   try {
@@ -28,7 +28,7 @@ const signUp = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     if (!email || !password) {
       return res.status(400).json({
         status: "ERROR",
@@ -44,7 +44,7 @@ const login = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log();
+
     if (!isMatch) {
       return res.status(400).json({
         status: "ERROR",
@@ -74,7 +74,80 @@ const login = async (req, res) => {
   }
 };
 
+
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const data = req.body;
+    if (!userId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The userID is required",
+      });
+    }
+    const response = await UserService.updateUser(userId, data);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(200).json({
+        status: "ERRO",
+        message: "The userID is required",
+      });
+    }
+    const response = await UserService.deleteUser(userId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const getAllUser = async (req, res) => {
+  try {
+    const response = await UserService.getAllUser();
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const getDetailsUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(200).json({
+        status: "ERRO",
+        message: "The userID is required",
+      });
+    }
+    const response = await UserService.getDetailsUser(userId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
 module.exports = {
   signUp,
   login,
+  updateUser,
+  deleteUser,
+  getAllUser,
+  getDetailsUser,
 };

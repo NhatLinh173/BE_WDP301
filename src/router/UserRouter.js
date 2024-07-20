@@ -10,10 +10,18 @@ router.post("/sign-up", userController.signUp);
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
-userController = require("../controller/UserController");
+const userController = require("../controller/UserController");
 
 router.post("/sign-up", userController.signUp);
 router.post("/login", userController.login);
+
+router.put('/update-user/:id', userController.updateUser)
+router.delete('/delete-user/:id', userController.deleteUser)
+router.get('/get-all', userController.getAllUser)
+router.get('/get-details/:id', userController.getDetailsUser)
+
+
+
 
 router.get(
   "/list",

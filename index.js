@@ -14,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 routes(app);
 
+
 const dbURI =
   process.env.MONGO_DB ||
   "mongodb+srv://thinhph9:viQilFKh1mNREcgB@fjobdb.vliqvdr.mongodb.net/FJobDB";
