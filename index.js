@@ -13,7 +13,6 @@ app.use(cors());
 app.use(bodyParser.json());
 routes(app);
 
-const jobPostRouter = require("./src/router/jobRouter");
 
 const dbURI =
   process.env.MONGO_DB ||
