@@ -48,7 +48,7 @@ const login = async (req, res) => {
         .json({ status: "ERROR", message: "Incorrect password" });
     }
     const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin, role: user.role },
+      { id: user._id, isAdmin: user.isAdmin },
       process.env.SECRET_KEY,
       { expiresIn: "1d" }
     );
@@ -56,7 +56,7 @@ const login = async (req, res) => {
       status: "OK",
       message: "Login SUCCESS",
       token,
-      user: { id: user._id, email: user.email, token, role: user.role },
+      user: { id: user._id, email: user.email, token },
     });
   } catch (e) {
     return res.status(500).json({ message: e.message });
@@ -86,7 +86,7 @@ const googleAuthenticateCallback = (req, res, next) => {
         console.log("email : " + user.email);
         // Redirect to the client with user info in URL
         res.redirect(
-          `http://localhost:3006/login?userId=${user._id}&token=${token}&email=${user.email}`
+          `http://localhost:3006/login?id=${user._id}&token=${token}&email=${user.email}`
         );
       } catch (error) {
         res.status(500).send({ message: error.message });
@@ -130,7 +130,7 @@ const forgotPassword = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
+    console.error(err); // Log error chi tiết để kiểm tra
     res.status(500).send({ err: err.message });
   }
 };
