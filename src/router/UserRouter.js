@@ -6,38 +6,27 @@ const router = express.Router();
 userController = require("../controller/UserController");
 candidateController = require("../controller/CandidateController");
 
-router.post("/sign-up", userController.signUp);
-
 const {
   googleAuthenticate,
   googleAuthenticateCallback,
   forgotPassword,
   resetPassword,
 } = require("../controller/UserController");
-
-userController = require("../controller/UserController");
-
 router.post("/sign-up", userController.signUp);
 router.post("/login", userController.login);
-
 router.get("/google", googleAuthenticate);
 router.get("/google/callback", googleAuthenticateCallback);
 
-router.get(
-  "/list",
-  //   authenticate.verifyUser,
-  //   authenticate.verifyAdmin,
-  async (req, res, next) => {
-    try {
-      const users = await User.find({});
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.json(users);
-    } catch (err) {
-      next(err);
-    }
+router.get("/list", async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(users);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 router.get("/logout", (req, res, next) => {
   if (req.session) {
