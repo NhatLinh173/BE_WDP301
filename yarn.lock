@@ -30,9 +30,9 @@
     tar "^6.1.11"
 
 "@mongodb-js/saslprep@^1.1.5":
-  version "1.1.7"
-  resolved "https://registry.npmjs.org/@mongodb-js/saslprep/-/saslprep-1.1.7.tgz"
-  integrity sha512-dCHW/oEX0KJ4NjDULBo3JiOaK5+6axtpBbS+ao2ZInoAL9/YRQLhXzSNAFz7hP4nzLkIqsfYAK/PDE3+XHny0Q==
+  version "1.1.8"
+  resolved "https://registry.npmjs.org/@mongodb-js/saslprep/-/saslprep-1.1.8.tgz"
+  integrity sha512-qKwC/M/nNNaKUBMQ0nuzm47b7ZYWQHN3pcXq4IIcoSBc2hOIrflAxJduIvvqmhoz3gR2TacTAs8vlsCVPkiEdQ==
   dependencies:
     sparse-bitfield "^3.0.3"
 
@@ -1400,6 +1400,15 @@ mongodb-connection-string-url@^3.0.0:
     "@types/whatwg-url" "^11.0.2"
     whatwg-url "^13.0.0"
 
+mongodb@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.npmjs.org/mongodb/-/mongodb-6.8.0.tgz"
+  integrity sha512-HGQ9NWDle5WvwMnrvUxsFYPd3JEbqD3RgABHBQRuoCEND0qzhsd0iH5ypHsf1eJ+sXmvmyKpP+FLOKY8Il7jMw==
+  dependencies:
+    "@mongodb-js/saslprep" "^1.1.5"
+    bson "^6.7.0"
+    mongodb-connection-string-url "^3.0.0"
+
 mongodb@6.7.0:
   version "6.7.0"
   resolved "https://registry.npmjs.org/mongodb/-/mongodb-6.7.0.tgz"
@@ -1409,10 +1418,10 @@ mongodb@6.7.0:
     bson "^6.7.0"
     mongodb-connection-string-url "^3.0.0"
 
-mongoose@^8.5.0:
-  version "8.5.0"
-  resolved "https://registry.npmjs.org/mongoose/-/mongoose-8.5.0.tgz"
-  integrity sha512-iGgZvgO+fIgX1AQMehkG+Wj8qrWc9it8vUZrSKWjrebgfwHTqUcIdTgWK8mT1us1xd83NOQxiuGbg9ZJtLxs2Q==
+mongoose@^8.5.1:
+  version "8.5.1"
+  resolved "https://registry.npmjs.org/mongoose/-/mongoose-8.5.1.tgz"
+  integrity sha512-OhVcwVl91A1G6+XpjDcpkGP7l7ikZkxa0DylX7NT/lcEqAjggzSdqDxb48A+xsDxqNAr0ntSJ1yiE3+KJTOd5Q==
   dependencies:
     bson "^6.7.0"
     kareem "2.6.3"
