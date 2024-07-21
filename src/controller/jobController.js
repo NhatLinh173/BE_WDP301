@@ -1,4 +1,7 @@
+const Job = require("../models/job");
+const User = require("../models/UserModel");
 const jobService = require("../service/jobService");
+const upload = require("../utils/upload");
 
 const jobPostController = {
   createJobPost: async (req, res) => {
@@ -123,6 +126,47 @@ const jobPostController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+  applyForJob: [
+    upload.fields([{ name: "cvPath" }, { name: "degreePath" }]),
+    async (req, res) => {
+      try {
+        const { jobId, userId } = req.params;
+        const { fullName, email, phone, introduce } = req.body;
+
+        const cvPath = req.files["cvPath"] ? req.files["cvPath"][0].path : null;
+        const degreePath = req.files["degreePath"]
+          ? req.files["degreePath"][0].path
+          : null;
+
+        const job = await Job.findById(jobId);
+        const user = await User.findById(userId);
+
+        if (!job) {
+          return res.status(404).json({ message: "Job not found" });
+        }
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        const application = {
+          applicant: userId,
+          cvPath,
+          degreePath,
+          fullName,
+          email,
+          phone,
+          introduce,
+        };
+
+        job.applications.push(application);
+        await job.save();
+
+        res.status(200).json({ message: "Application submitted successfully" });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    },
+  ],
 };
 
 module.exports = jobPostController;

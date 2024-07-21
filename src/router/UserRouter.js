@@ -12,34 +12,26 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const user = require("./../models/UserModel");
 const { Validator } = require("node-input-validator");
-router.post("/sign-up", userController.signUp);
-router.post("/login", userController.login);
-
 const {
   googleAuthenticate,
   googleAuthenticateCallback,
   forgotPassword,
   resetPassword,
 } = require("../controller/UserController");
-
+router.post("/sign-up", userController.signUp);
+router.post("/login", userController.login);
 router.get("/google", googleAuthenticate);
 router.get("/google/callback", googleAuthenticateCallback);
-
-router.get(
-  "/list",
-  //   authenticate.verifyUser,
-  //   authenticate.verifyAdmin,
-  async (req, res, next) => {
-    try {
-      const users = await User.find({});
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.json(users);
-    } catch (err) {
-      next(err);
-    }
+router.get("/list", async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(users);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 router.get("/logout", (req, res, next) => {
   if (req.session) {

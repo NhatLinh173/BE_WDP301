@@ -17,7 +17,7 @@ const jobSchema = new Schema({
   address: { type: String, required: true },
   country: { type: String, required: true },
   state: { type: String, required: true },
-  workPlace: { type: String, required: true },
+  workPlace: { type: String, required: false },
   userId: { type: String, require: true },
   reason: { type: [String], required: true },
   workingDays: { type: [String], required: true },
@@ -25,6 +25,18 @@ const jobSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   expiredDate: { type: Date },
   status: { type: String, require: true },
+  applications: [
+    {
+      applicant: { type: Schema.Types.ObjectId, ref: "User" },
+      cvPath: { type: String },
+      degreePath: { type: String },
+      fullName: { type: String },
+      email: { type: String },
+      phone: { type: String },
+      introduce: { type: String },
+      appliedAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 const Job = mongoose.model("Job", jobSchema);
