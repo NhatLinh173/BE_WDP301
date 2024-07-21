@@ -1,5 +1,6 @@
 const CandidateProfile = require("../models/CandidateModel");
 
+// Mai - function
 const createProfile = async (profileData) => {
   if (!profileData) {
     throw new Error("Profile data is required");
@@ -13,6 +14,7 @@ const createProfile = async (profileData) => {
   }
 };
 
+// Mai - function
 const getProfileByUserId = async (userId) => {
   try {
     const profile = await CandidateProfile.findOne({ user: userId });
@@ -22,8 +24,23 @@ const getProfileByUserId = async (userId) => {
   }
 };
 
+// Mai - function
+const updateProfile = async (userId, updateData) => {
+  try {
+    const updateProfile = await CandidateProfile.findOneAndUpdate(
+      { user: userId },
+      updateData,
+      { new: true }
+    );
+    return updateProfile;
+  } catch (err) {
+    throw new Error(`Error updating profile: ${err.message}`);
+  }
+};
+
 module.exports = {
   createProfile,
   // getProfileById,
   getProfileByUserId,
+  updateProfile,
 };

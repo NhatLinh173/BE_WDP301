@@ -13,7 +13,6 @@ if (!fs.existsSync(uploadDir)) {
 }
 // container all API
 const routes = (app) => {
-  app.use("/api", UserRouter);
   app.use("/api/user/candidate", CandidateRouter);
   app.use("/api/user", UserRouter);
   app.use("/api/CV", CVRouter);
@@ -21,5 +20,5 @@ const routes = (app) => {
   app.use("/api/images", imageRouter);
   app.use("/recruiter", recruiterRouter);
 };
-// container all API
+
 module.exports = routes;

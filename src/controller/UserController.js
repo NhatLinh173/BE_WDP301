@@ -2,8 +2,10 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/UserModel");
 const passport = require("passport");
-UserService = require("../service/UserService");
 const nodemailer = require("nodemailer");
+const UserService = require("../service/UserService");
+const user = require("./../models/UserModel");
+const { Validator } = require("node-input-validator");
 
 const signUp = async (req, res) => {
   try {
@@ -151,6 +153,53 @@ const resetPassword = async (req, res) => {
     res.status(500).send({ Status: err.message });
   }
 };
+const changePassword = async (req, res) => {
+  try {
+    const v = new Validator(req.body, {
+      old_password: "required",
+      new_password: "required",
+      confirm_password: "required|same:new_password",
+    });
+    const matched = await v.check();
+    if (!matched) {
+      return res.status(422).send(v.errors);
+    }
+
+    const currentUser = await User.findById(req.user._id);
+    if (!currentUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(
+      req.body.old_password,
+      currentUser.password
+    );
+    if (!isMatch) {
+      return res.status(400).send({ message: "Old Password does not match" });
+    }
+
+    const isSamePassword = await bcrypt.compare(
+      req.body.new_password,
+      currentUser.password
+    );
+
+    if (isSamePassword) {
+      return res
+        .status(400)
+        .send({ message: "Sorry! You entered an old password" });
+    }
+
+    const hashPassword = await bcrypt.hash(req.body.new_password, 10);
+    await User.updateOne({ _id: currentUser._id }, { password: hashPassword });
+
+    const updatedUser = await User.findOne({ _id: currentUser._id });
+    return res
+      .status(200)
+      .send({ message: "Password successfully updated", data: updatedUser });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+};
 module.exports = {
   signUp,
   login,
@@ -158,4 +207,5 @@ module.exports = {
   googleAuthenticateCallback,
   forgotPassword,
   resetPassword,
+  changePassword,
 };
