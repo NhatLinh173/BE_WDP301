@@ -3,15 +3,15 @@ const User = require("../models/UserModel");
 const passport = require("passport");
 const authenticate = require("../models/authenticate");
 const router = express.Router();
-userController = require("../controller/UserController");
-candidateController = require("../controller/CandidateController");
+const candidateController = require("../controller/CandidateController");
+const userController = require("../controller/UserController");
 
 router.post("/sign-up", userController.signUp);
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
-userController = require("../controller/UserController");
-
+const user = require("./../models/UserModel");
+const { Validator } = require("node-input-validator");
 router.post("/sign-up", userController.signUp);
 router.post("/login", userController.login);
 
@@ -120,5 +120,11 @@ router.post("/reset-password/:id/:token", async (req, res) => {
     res.status(500).send({ Status: err.message });
   }
 });
+
+router.post(
+  "/changePassword/:id",
+  authenticate.verifyUser,
+  userController.changePassword
+);
 
 module.exports = router;

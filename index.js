@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const routes = require("./src/router");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const passport = require("passport");
+require("./src/models/authenticate");
 
 dotenv.config();
 
@@ -11,6 +13,12 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.json());
+
+// Khởi tạo Passport.js
+app.use(passport.initialize());
+
+// Sử dụng các tuyến đường
 routes(app);
 
 const jobPostRouter = require("./src/router/jobRouter");
@@ -19,9 +27,7 @@ const dbURI =
   process.env.MONGO_DB ||
   "mongodb+srv://thinhph9:viQilFKh1mNREcgB@fjobdb.vliqvdr.mongodb.net/FJobDB";
 
-app.use(express.json());
-
-// Connect to MongoDB Atlas
+// Kết nối tới MongoDB Atlas
 mongoose
   .connect(process.env.MONGO_DB, {
     useNewUrlParser: true,
@@ -35,8 +41,6 @@ mongoose
   });
 
 module.exports = app;
-
-
 
 // app.listen(port, () => {
 //   console.log(`App running with PORT http://localhost:${port}`);
