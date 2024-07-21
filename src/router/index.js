@@ -4,7 +4,7 @@ const CandidateRouter = require("./CandidateRouter");
 const CVRouter = require("./CVRouter");
 const JobRouter = require("./jobRouter");
 const imageRouter = require("./imageRouter");
-
+const recruiterRouter = require("./RecruiterRouter");
 const fs = require("fs");
 const path = require("path");
 const uploadDir = path.join(__dirname, "uploads");
@@ -19,6 +19,7 @@ const routes = (app) => {
   app.use("/api/CV", CVRouter);
   app.use("/job", JobRouter);
   app.use("/api/images", imageRouter);
+  app.use("/recruiter", recruiterRouter);
 };
 // container all API
 module.exports = routes;
