@@ -57,7 +57,7 @@ const jobPostController = {
         workPlace,
         reason,
         userId,
-        status: "active",
+        status: "ACTIVE",
         expiredDate: expiredDateString,
       };
 
