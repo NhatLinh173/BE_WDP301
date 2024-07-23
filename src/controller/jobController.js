@@ -4,6 +4,19 @@ const jobService = require("../service/jobService");
 const upload = require("../utils/upload");
 const CandidateProfile = require("../models/CandidateModel");
 const { sendApplicationEmail } = require("../utils/mailer");
+const uploadsFirebase = require("../utils/uploadsFirebase");
+
+const {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} = require("firebase/storage");
+const { initializeApp } = require("firebase/app");
+const config = require("../config/firebase.config");
+
+initializeApp(config.firebaseConfig);
+const storage = getStorage();
 
 const jobPostController = {
   createJobPost: async (req, res) => {
@@ -130,14 +143,13 @@ const jobPostController = {
   },
   //trieu - chuc nang apply job
   applyForJob: [
-    upload.fields([{ name: "cvPath" }, { name: "degreePath" }]),
+    uploadsFirebase.fields([{ name: "cvPath" }, { name: "degreePath" }]),
     async (req, res) => {
       try {
         const { jobId, userId } = req.params;
-        let candidateProfile = await CandidateProfile.findOne({
-          user: userId,
-        });
+        let candidateProfile = await CandidateProfile.findOne({ user: userId });
         const selectedJob = await Job.findById(jobId);
+
         if (!selectedJob) {
           return res.status(404).json({ error: "Job not found" });
         }
@@ -147,15 +159,15 @@ const jobPostController = {
             .json({ message: "Candidate profile not found" });
         }
 
-        const alreadyApplied = selectedJob.applications.some(
-          (application) => application.applicant.toString() === userId
-        );
+        // const alreadyApplied = selectedJob.applications.some(
+        //   (application) => application.applicant.toString() === userId
+        // );
 
-        if (alreadyApplied) {
-          return res
-            .status(400)
-            .json({ message: "You have already applied for this job." });
-        }
+        // if (alreadyApplied) {
+        //   return res
+        //     .status(400)
+        //     .json({ message: "You have already applied for this job." });
+        // }
 
         let { fullName, email, phone, image } = candidateProfile;
 
@@ -164,27 +176,46 @@ const jobPostController = {
         if (req.body.phone) phone = req.body.phone;
         if (req.body.image) image = req.body.image;
 
-        const cvPath = req.files["cvPath"] ? req.files["cvPath"][0].path : null;
-        const degreePath = req.files["degreePath"]
-          ? req.files["degreePath"][0].path
-          : null;
-        const job = await Job.findById(jobId);
-        if (!job) {
-          return res.status(404).json({ message: "Job not found" });
+        let cvURL = null;
+        let degreeURL = null;
+
+        // Handle CV upload
+        if (req.files["cvPath"]) {
+          const { buffer, originalname } = req.files["cvPath"][0];
+          const uniqueFileName = `${Date.now()}-${originalname}`;
+
+          const storageRef = ref(storage, `files/${uniqueFileName}`);
+          const snapshot = await uploadBytes(storageRef, buffer);
+
+          cvURL = await getDownloadURL(snapshot.ref);
+        }
+
+        // Handle Degree upload
+        if (req.files["degreePath"]) {
+          const { buffer, originalname } = req.files["degreePath"][0];
+          const uniqueFileName = `${Date.now()}-${originalname}`;
+
+          const storageRef = ref(storage, `files/${uniqueFileName}`);
+          const snapshot = await uploadBytes(storageRef, buffer);
+
+          degreeURL = await getDownloadURL(snapshot.ref);
         }
 
         const application = {
           applicant: userId,
-          cvPath,
-          degreePath,
+          cvPath: cvURL,
+          degreePath: degreeURL,
           fullName,
           email,
           phone,
           image,
           introduce: req.body.introduce,
+          status: "PENDING",
         };
-        job.applications.push(application);
-        await job.save();
+
+        selectedJob.applications.push(application);
+        await selectedJob.save();
+
         sendApplicationEmail(email, selectedJob.title, fullName);
 
         res.status(200).json({ message: "Application submitted successfully" });
@@ -197,13 +228,17 @@ const jobPostController = {
   listJobApplicants: async (req, res) => {
     try {
       const jobId = req.params.id;
+      const statusFilter = req.query.status; // Lấy trạng thái từ query parameter
+
+      // Tìm job bằng ID
       const job = await jobService.getJobPostById2(jobId);
 
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
       }
 
-      const applicants = job.applications.map((application) => ({
+      // Lọc ứng viên theo trạng thái nếu có
+      let applicants = job.applications.map((application) => ({
         applicantId: application.applicant,
         fullName: application.fullName,
         email: application.email,
@@ -213,7 +248,14 @@ const jobPostController = {
         degreePath: application.degreePath,
         introduce: application.introduce,
         appliedAt: application.appliedAt,
+        status: application.status,
       }));
+
+      if (statusFilter) {
+        applicants = applicants.filter(
+          (application) => application.status === statusFilter
+        );
+      }
 
       res.status(200).json({ applicants });
     } catch (error) {
@@ -221,6 +263,7 @@ const jobPostController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+
   listJobsByRecruiter: async (req, res) => {
     try {
       const recruiterId = req.params.userId;
@@ -243,13 +286,13 @@ const jobPostController = {
       const jobId = req.params.jobId;
       const applications = await jobService.getJobApplications(jobId);
       if (!applications) {
-        return res.status(404).json({ message: 'Job not found' });
+        return res.status(404).json({ message: "Job not found" });
       }
       res.json(applications);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  }
+  },
 };
 
 module.exports = jobPostController;
