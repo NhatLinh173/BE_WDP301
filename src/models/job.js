@@ -37,7 +37,7 @@ const jobSchema = new Schema({
       image: { type: String },
       introduce: { type: String },
       appliedAt: { type: Date, default: Date.now },
-      status: {type: String}
+      status: { type: String },
     },
   ],
 });
