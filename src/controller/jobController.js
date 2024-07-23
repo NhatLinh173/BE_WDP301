@@ -2,6 +2,8 @@ const Job = require("../models/job");
 const User = require("../models/UserModel");
 const jobService = require("../service/jobService");
 const upload = require("../utils/upload");
+const CandidateProfile = require("../models/CandidateModel");
+const { sendApplicationEmail } = require("../utils/mailer");
 
 const jobPostController = {
   createJobPost: async (req, res) => {
@@ -126,26 +128,49 @@ const jobPostController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+  //trieu - chuc nang apply job
   applyForJob: [
     upload.fields([{ name: "cvPath" }, { name: "degreePath" }]),
     async (req, res) => {
       try {
         const { jobId, userId } = req.params;
-        const { fullName, email, phone, introduce } = req.body;
+        let candidateProfile = await CandidateProfile.findOne({
+          user: userId,
+        });
+        const selectedJob = await Job.findById(jobId);
+        if (!selectedJob) {
+          return res.status(404).json({ error: "Job not found" });
+        }
+        if (!candidateProfile) {
+          return res
+            .status(404)
+            .json({ message: "Candidate profile not found" });
+        }
+
+        const alreadyApplied = selectedJob.applications.some(
+          (application) => application.applicant.toString() === userId
+        );
+
+        if (alreadyApplied) {
+          return res
+            .status(400)
+            .json({ message: "You have already applied for this job." });
+        }
+
+        let { fullName, email, phone, image } = candidateProfile;
+
+        if (req.body.fullName) fullName = req.body.fullName;
+        if (req.body.email) email = req.body.email;
+        if (req.body.phone) phone = req.body.phone;
+        if (req.body.image) image = req.body.image;
 
         const cvPath = req.files["cvPath"] ? req.files["cvPath"][0].path : null;
         const degreePath = req.files["degreePath"]
           ? req.files["degreePath"][0].path
           : null;
-
         const job = await Job.findById(jobId);
-        const user = await User.findById(userId);
-
         if (!job) {
           return res.status(404).json({ message: "Job not found" });
-        }
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
         }
 
         const application = {
@@ -155,11 +180,12 @@ const jobPostController = {
           fullName,
           email,
           phone,
-          introduce,
+          image,
+          introduce: req.body.introduce,
         };
-
         job.applications.push(application);
         await job.save();
+        sendApplicationEmail(email, selectedJob.title, fullName);
 
         res.status(200).json({ message: "Application submitted successfully" });
       } catch (err) {
@@ -167,6 +193,51 @@ const jobPostController = {
       }
     },
   ],
+
+  listJobApplicants: async (req, res) => {
+    try {
+      const jobId = req.params.id;
+      const job = await jobService.getJobPostById2(jobId);
+
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+
+      const applicants = job.applications.map((application) => ({
+        applicantId: application.applicant,
+        fullName: application.fullName,
+        email: application.email,
+        phone: application.phone,
+        cvPath: application.cvPath,
+        image: application.image,
+        degreePath: application.degreePath,
+        introduce: application.introduce,
+        appliedAt: application.appliedAt,
+      }));
+
+      res.status(200).json({ applicants });
+    } catch (error) {
+      console.error("Error listing job applicants: ", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+  listJobsByRecruiter: async (req, res) => {
+    try {
+      const recruiterId = req.params.userId;
+      const jobs = await jobService.getJobsByRecruiter(recruiterId);
+
+      if (!jobs.length) {
+        return res
+          .status(404)
+          .json({ message: "No jobs found for this recruiter" });
+      }
+
+      res.status(200).json({ jobs });
+    } catch (error) {
+      console.error("Error listing jobs by recruiter: ", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
 };
 
 module.exports = jobPostController;

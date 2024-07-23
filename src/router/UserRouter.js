@@ -23,10 +23,10 @@ router.post("/login", userController.login);
 router.get("/google", googleAuthenticate);
 router.get("/google/callback", googleAuthenticateCallback);
 // Thinh
-router.put('/update-user/:id', userController.updateUser)
-router.delete('/delete-user/:id', userController.deleteUser)
-router.get('/get-all', userController.getAllUser)
-router.get('/get-details/:id', userController.getDetailsUser)
+router.put("/update-user/:id", userController.updateUser);
+router.delete("/delete-user/:id", userController.deleteUser);
+router.get("/get-all", userController.getAllUser);
+router.get("/get-details/:id", userController.getDetailsUser);
 
 router.get("/list", async (req, res, next) => {
   try {

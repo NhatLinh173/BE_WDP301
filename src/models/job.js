@@ -28,11 +28,13 @@ const jobSchema = new Schema({
   applications: [
     {
       applicant: { type: Schema.Types.ObjectId, ref: "User" },
+
       cvPath: { type: String },
       degreePath: { type: String },
       fullName: { type: String },
       email: { type: String },
       phone: { type: String },
+      image: { type: String },
       introduce: { type: String },
       appliedAt: { type: Date, default: Date.now },
     },

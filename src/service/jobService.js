@@ -30,6 +30,26 @@ const jobPostService = {
       throw error;
     }
   },
+  //trieu - chuc nang lay thong cua job
+  getJobPostById2: async (jobId) => {
+    try {
+      return await Job.findById(jobId).populate(
+        "applications.applicant",
+        "name email image"
+      );
+    } catch (error) {
+      console.error("Error fetching job post:", error);
+      throw error;
+    }
+  },
+  getJobsByRecruiter: async (recruiterId) => {
+    try {
+      return await Job.find({ userId: recruiterId });
+    } catch (error) {
+      console.error("Error fetching jobs by recruiter:", error);
+      throw error;
+    }
+  },
   updateJobPost: async (jobId, newData) => {
     try {
       const updateJob = await Job.findByIdAndUpdate(jobId, newData, {
