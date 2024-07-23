@@ -182,6 +182,8 @@ const jobPostController = {
           phone,
           image,
           introduce: req.body.introduce,
+          status: "PENDING"
+
         };
         job.applications.push(application);
         await job.save();
@@ -213,6 +215,7 @@ const jobPostController = {
         degreePath: application.degreePath,
         introduce: application.introduce,
         appliedAt: application.appliedAt,
+        status: application.status
       }));
 
       res.status(200).json({ applicants });
@@ -249,7 +252,33 @@ const jobPostController = {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  }
-};
+  },
 
+  // Thinh-updateApplicantStatus
+  updateApplicantStatus: async (req, res) => {
+    const { email, status } = req.body;
+
+    try {
+      const job = await Job.findOne({ 'applications.email': email });
+
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+
+      const applicant = job.applications.find(applicant => applicant.email === email);
+
+      if (!applicant) {
+        return res.status(404).json({ message: 'Applicant not found' });
+      }
+
+      applicant.status = status;
+
+      await job.save();
+
+      res.status(200).json({ message: 'Applicant status updated successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update applicant status', error: error.message });
+    }
+  },
+}
 module.exports = jobPostController;

@@ -3,6 +3,7 @@ const router = express.Router();
 const jobPostController = require("../controller/jobController");
 const upload = require("../utils/upload");
 const { sendApplicationMail } = require("../controller/mailController");
+const { sendRejectEmail } = require('../controller/mailController');
 router.post(
   "/create-job-post",
   upload.array("images", 10),
@@ -22,4 +23,10 @@ router.post('/send-application-mail', sendApplicationMail);
 router.get("/recruiter/:userId", jobPostController.listJobsByRecruiter);
 router.get("/:id/applicants", jobPostController.listJobApplicants);
 
+
+// Thinh- change status after send email for applicant
+router.post('/update-applicant-status', jobPostController.updateApplicantStatus);
+
+// Thinh - send mail reject
+router.post('/send-reject-email', sendRejectEmail);
 module.exports = router;

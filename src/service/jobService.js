@@ -83,7 +83,9 @@ const jobPostService = {
     } catch (error) {
       throw new Error(error);
     }
-  }
+  },
+
+
 
 };
 
