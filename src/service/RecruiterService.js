@@ -3,11 +3,19 @@ const bcrypt = require("bcrypt");
 
 const signUpRecruiter = (newRecruiter) => {
   return new Promise(async (resolve, reject) => {
-    const { email, password, addressCompany, phone, nameCompany, gender } =
-      newRecruiter;
+    const {
+      emailRecruiter,
+      password,
+      fullName,
+      phone,
+      company,
+      gender,
+      city,
+      district,
+    } = newRecruiter;
 
     try {
-      const checkRecruiter = await Recruiter.findOne({ email });
+      const checkRecruiter = await Recruiter.findOne({ emailRecruiter });
       if (checkRecruiter !== null) {
         return resolve({
           status: "Ok",
@@ -17,12 +25,14 @@ const signUpRecruiter = (newRecruiter) => {
 
       const hashedPassword = bcrypt.hashSync(password, 10);
       const createRecruiter = await Recruiter.create({
-        email,
+        emailRecruiter,
         password: hashedPassword,
-        addressCompany,
+        fullName,
         phone,
-        nameCompany,
+        company,
         gender,
+        city,
+        district,
       });
 
       if (createRecruiter) {
@@ -39,9 +49,9 @@ const signUpRecruiter = (newRecruiter) => {
   });
 };
 
-const findRecruiterByEmail = async (email) => {
+const findRecruiterByEmail = async (emailRecruiter) => {
   try {
-    return await Recruiter.findOne({ email });
+    return await Recruiter.findOne({ emailRecruiter });
   } catch (error) {
     throw new Error(e.message);
   }

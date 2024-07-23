@@ -1,16 +1,17 @@
 const { types } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const passportLocalMongoose = require("passport-local-mongoose");
 
 const recruiterSchema = new Schema(
   {
-    email: { type: String, require: true, unique: true },
-    password: { type: String, require: true },
-    addressCompany: { type: String, require: true },
+    emailRecruiter: { type: String, required: true, unique: true },
+    fullName: { type: String, required: true },
+    password: { type: String, required: true },
+    district: { type: String, required: true },
+    city: { type: String, required: true },
     phone: { type: Number },
     role: { type: String, default: "recruiter" },
-    nameCompany: { type: String },
+    company: { type: String },
     gender: { type: String },
   },
   {
@@ -18,6 +19,5 @@ const recruiterSchema = new Schema(
   }
 );
 
-recruiterSchema.plugin(passportLocalMongoose);
 const Recruiter = mongoose.model("Recruiter", recruiterSchema);
 module.exports = Recruiter;

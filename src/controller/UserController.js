@@ -48,7 +48,7 @@ const login = async (req, res) => {
         .json({ status: "ERROR", message: "Incorrect password" });
     }
     const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
+      { id: user._id, isAdmin: user.isAdmin, role: user.role },
       process.env.SECRET_KEY,
       { expiresIn: "1d" }
     );
@@ -56,7 +56,7 @@ const login = async (req, res) => {
       status: "OK",
       message: "Login SUCCESS",
       token,
-      user: { id: user._id, email: user.email, token },
+      user: { id: user._id, email: user.email, token, role: user.role },
     });
   } catch (e) {
     return res.status(500).json({ message: e.message });

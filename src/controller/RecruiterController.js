@@ -5,22 +5,32 @@ const RecruiterService = require("../service/RecruiterService");
 
 const signUp = async (req, res) => {
   try {
-    const { email, password, addressCompany, phone, nameCompany, gender } =
-      req.body;
+    const {
+      emailRecruiter,
+      password,
+      fullName,
+      phone,
+      company,
+      gender,
+      city,
+      district,
+    } = req.body;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     if (
-      !email ||
+      !emailRecruiter ||
       !password ||
-      !addressCompany ||
+      !district ||
       !phone ||
-      !nameCompany ||
-      !gender
+      !company ||
+      !gender ||
+      !fullName ||
+      !city
     ) {
       return res.status(400).json({
         status: "ERROR",
-        message: "Email and password are required",
+        message: "All fields are required",
       });
-    } else if (!reg.test(email)) {
+    } else if (!reg.test(emailRecruiter)) {
       return res.status(400).json({
         status: "ERROR",
         message: "Invalid email format",
@@ -35,13 +45,13 @@ const signUp = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { emailRecruiter, password } = req.body;
+    if (!emailRecruiter || !password) {
       return res
         .status(400)
         .json({ status: "ERROR", message: "Email and password are required" });
     }
-    const recruiter = await Recruiter.findOne({ email });
+    const recruiter = await Recruiter.findOne({ emailRecruiter });
     if (!recruiter) {
       return res
         .status(400)
@@ -68,7 +78,7 @@ const login = async (req, res) => {
       token,
       recruiter: {
         id: recruiter._id,
-        email: recruiter.email,
+        emailRecruiter: recruiter.emailRecruiter,
         token,
         role: recruiter.role,
       },
