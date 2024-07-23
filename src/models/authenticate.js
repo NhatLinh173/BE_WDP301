@@ -25,6 +25,7 @@ const jwtOpts = {
   secretOrKey: config.secretKey,
 };
 
+// Trích xuất id từ payload JWT 
 passport.use(
   new JwtStrategy(jwtOpts, async (jwtPayload, done) => {
     try {
