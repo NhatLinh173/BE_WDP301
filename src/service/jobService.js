@@ -51,6 +51,20 @@ const jobPostService = {
       throw error;
     }
   },
+
+  getJobApplications: async (jobId) => {
+    try {
+      const job = await Job.findById(jobId).populate('applications.applicant');
+      if (!job) {
+        return null;
+      } else {
+        return job.applications;
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
 };
 
 module.exports = jobPostService;
