@@ -238,6 +238,18 @@ const jobPostController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+  getJobApplications: async (req, res) => {
+    try {
+      const jobId = req.params.jobId;
+      const applications = await jobService.getJobApplications(jobId);
+      if (!applications) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      res.json(applications);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 };
 
 module.exports = jobPostController;
