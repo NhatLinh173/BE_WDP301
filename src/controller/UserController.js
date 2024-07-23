@@ -274,7 +274,7 @@ module.exports = {
   resetPassword,
   changePassword,
   getAllUser,
-  getDetailsUser, 
+  getDetailsUser,
   deleteUser,
-  updateUser
+  updateUser,
 };
