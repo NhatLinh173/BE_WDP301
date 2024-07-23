@@ -3,29 +3,41 @@ const User = require("../models/UserModel");
 const passport = require("passport");
 const authenticate = require("../models/authenticate");
 const router = express.Router();
+const candidateController = require("../controller/CandidateController");
+const userController = require("../controller/UserController");
+
+router.post("/sign-up", userController.signUp);
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
-userController = require("../controller/UserController");
-
+const user = require("./../models/UserModel");
+const { Validator } = require("node-input-validator");
+const {
+  googleAuthenticate,
+  googleAuthenticateCallback,
+  forgotPassword,
+  resetPassword,
+} = require("../controller/UserController");
 router.post("/sign-up", userController.signUp);
 router.post("/login", userController.login);
+router.get("/google", googleAuthenticate);
+router.get("/google/callback", googleAuthenticateCallback);
+// Thinh
+router.put("/update-user/:id", userController.updateUser);
+router.delete("/delete-user/:id", userController.deleteUser);
+router.get("/get-all", userController.getAllUser);
+router.get("/get-details/:id", userController.getDetailsUser);
 
-router.get(
-  "/list",
-  //   authenticate.verifyUser,
-  //   authenticate.verifyAdmin,
-  async (req, res, next) => {
-    try {
-      const users = await User.find({});
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.json(users);
-    } catch (err) {
-      next(err);
-    }
+router.get("/list", async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(users);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 router.get("/logout", (req, res, next) => {
   if (req.session) {
@@ -61,60 +73,13 @@ router.get(
   }
 );
 
-router.post("/forgot-password", async (req, res) => {
-  const { email } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).send({ Status: "User not existed" });
-    }
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:id/:token", resetPassword);
 
-    const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
-      expiresIn: "1d",
-    });
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Reset Password Link",
-      text: `http://localhost:3006/reset_password/${user._id}/${token}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error(error);
-        return res.status(500).send({ Status: "Failed to send email" });
-      } else {
-        return res.send({ Status: "Success" });
-      }
-    });
-  } catch (err) {
-    res.status(500).send({ err: err });
-  }
-});
-router.post("/reset-password/:id/:token", async (req, res) => {
-  const { id, token } = req.params;
-  const { password } = req.body;
-  try {
-    jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
-      if (err) {
-        return res.status(400).json({ Status: "Error with token" });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await User.findByIdAndUpdate(id, { password: hashedPassword });
-      res.send({ Status: "Success" });
-    });
-  } catch (err) {
-    res.status(500).send({ Status: err.message });
-  }
-});
+router.post(
+  "/changePassword/:id",
+  authenticate.verifyUser,
+  userController.changePassword
+);
 
 module.exports = router;

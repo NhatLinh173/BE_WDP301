@@ -1,11 +1,13 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const User = require("../models/UserModel");
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const jwt = require("jsonwebtoken");
+const User = require("../models/UserModel");
 const FacebookTokenStrategy = require("passport-facebook-token");
 const config = require("../utils/config");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+require("dotenv").config();
 
 // Local strategy for username/password authentication
 passport.use(new LocalStrategy(User.authenticate()));
@@ -29,7 +31,7 @@ const jwtOpts = {
 passport.use(
   new JwtStrategy(jwtOpts, async (jwtPayload, done) => {
     try {
-      const user = await User.findById(jwtPayload._id);
+      const user = await User.findById(jwtPayload.id);
       if (user) {
         return done(null, user);
       }
@@ -69,7 +71,18 @@ passport.use(
 );
 
 // Middleware to verify JWT token
-exports.verifyUser = passport.authenticate("jwt", { session: false });
+exports.verifyUser = (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    req.user = user;
+    next();
+  })(req, res, next);
+};
 
 // Middleware to verify admin role
 exports.verifyAdmin = (req, res, next) => {
@@ -80,3 +93,29 @@ exports.verifyAdmin = (req, res, next) => {
   err.status = 403;
   return next(err);
 };
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3005/api/user/google/callback",
+      scope: ["profile", "email"],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+        if (!user) {
+          user = await User.create({
+            googleId: profile.id,
+            email: profile.emails[0].value,
+            name: profile.displayName,
+          });
+        }
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
