@@ -87,8 +87,36 @@ const login = async (req, res) => {
     return res.status(500).json({ message: e.message });
   }
 };
+// Thinh - getAllRecruiters
+const getAllRecruiters = async (req, res) => {
+  try {
+    const recruiters = await Recruiter.find();
+    res.status(200).json(recruiters);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch recruiters', error: error.message });
+  }
+};
+
+// Thinh - deleteRecruiter
+const deleteRecruiter = async (req, res) => {
+  const { recruiterId } = req.params;
+
+  try {
+    const recruiter = await Recruiter.findByIdAndDelete(recruiterId);
+
+    if (!recruiter) {
+      return res.status(404).json({ message: 'Recruiter not found' });
+    }
+
+    res.status(200).json({ message: 'Recruiter deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete recruiter', error: error.message });
+  }
+};
 
 module.exports = {
   signUp,
   login,
+  getAllRecruiters,
+  deleteRecruiter,
 };
