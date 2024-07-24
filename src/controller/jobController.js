@@ -178,6 +178,7 @@ const jobPostController = {
 
         let cvURL = null;
         let degreeURL = null;
+        let degreeURLs = [];
 
         // Handle CV upload
         if (req.files["cvPath"]) {
@@ -191,20 +192,27 @@ const jobPostController = {
         }
 
         // Handle Degree upload
+        // if (req.files["degreePath"]) {
+        //   const { buffer, originalname } = req.files["degreePath"][0];
+        //   const uniqueFileName = `${Date.now()}-${originalname}`;
+
+        //   const storageRef = ref(storage, `files/${uniqueFileName}`);
+        //   const snapshot = await uploadBytes(storageRef, buffer);
+
+        //   degreeURL = await getDownloadURL(snapshot.ref);
+        // }
+
         if (req.files["degreePath"]) {
-          const { buffer, originalname } = req.files["degreePath"][0];
-          const uniqueFileName = `${Date.now()}-${originalname}`;
-
-          const storageRef = ref(storage, `files/${uniqueFileName}`);
-          const snapshot = await uploadBytes(storageRef, buffer);
-
-          degreeURL = await getDownloadURL(snapshot.ref);
+          for (const degreeFile of req.files["degreePath"]) {
+            const degreeURL = await uploadToFirebase(degreeFile);
+            degreeURLs.push(degreeURL);
+          }
         }
 
         const application = {
           applicant: userId,
           cvPath: cvURL,
-          degreePath: degreeURL,
+          degreePath: degreeURLs,
           fullName,
           email,
           phone,
@@ -326,5 +334,12 @@ const jobPostController = {
     }
   },
 };
+async function uploadToFirebase(file) {
+  const { buffer, originalname } = file;
+  const uniqueFileName = `${Date.now()}-${originalname}`;
 
+  const storageRef = ref(storage, `files/${uniqueFileName}`);
+  const snapshot = await uploadBytes(storageRef, buffer);
+  return await getDownloadURL(snapshot.ref);
+}
 module.exports = jobPostController;
