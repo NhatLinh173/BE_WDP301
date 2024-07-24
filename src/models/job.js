@@ -30,7 +30,7 @@ const jobSchema = new Schema({
       applicant: { type: Schema.Types.ObjectId, ref: "User" },
 
       cvPath: { type: String },
-      degreePath: { type: String },
+      degreePath: { type: [String] },
       fullName: { type: String },
       email: { type: String },
       phone: { type: String },
