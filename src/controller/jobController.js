@@ -159,15 +159,15 @@ const jobPostController = {
             .json({ message: "Candidate profile not found" });
         }
 
-        // const alreadyApplied = selectedJob.applications.some(
-        //   (application) => application.applicant.toString() === userId
-        // );
+        const alreadyApplied = selectedJob.applications.some(
+          (application) => application.applicant.toString() === userId
+        );
 
-        // if (alreadyApplied) {
-        //   return res
-        //     .status(400)
-        //     .json({ message: "You have already applied for this job." });
-        // }
+        if (alreadyApplied) {
+          return res
+            .status(400)
+            .json({ message: "You have already applied for this job." });
+        }
 
         let { fullName, email, phone, image } = candidateProfile;
 
